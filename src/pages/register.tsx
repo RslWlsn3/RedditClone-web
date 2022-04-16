@@ -1,7 +1,8 @@
 import React from "react";
-import { Formik } from "formik";
+import { Form, Formik } from "formik";
 import { FormControl, FormLabel, Input } from "@chakra-ui/react";
-import { Wrapper } from "./Wrapper";
+import { Wrapper } from "../components/Wrapper";
+import { InputField } from "../components/InputField";
 interface registerProps {}
 
 const Register: React.FC<registerProps> = ({}) => {
@@ -12,15 +13,10 @@ const Register: React.FC<registerProps> = ({}) => {
         onSubmit={(values) => console.log(values)}
       >
         {({ values, handleChange }) => (
-          <FormControl isRequired>
-            <FormLabel htmlFor="username">Username</FormLabel>
-            <Input
-              value={values.username}
-              onChange={handleChange}
-              id="username"
-              placeholder="Username"
-            />
-          </FormControl>
+          <Form>
+            <InputField name="username" label="username" placeholder="Username" />
+            <InputField name="password" label="password" placeholder="Password" type="password" />
+          </Form>
         )}
       </Formik>
     </Wrapper>
