@@ -5,18 +5,19 @@ import React, { InputHTMLAttributes } from "react";
 type InputFieldProps = InputHTMLAttributes<HTMLInputElement> & {
   name: string;
   label: string;
-  placeholder: string;
 }
 
-export const InputField: React.FC<InputFieldProps> = (props) => {
+export const InputField: React.FC<InputFieldProps> = ({label, size: _, ...props}) => {
     const [field, {error}] = useField(props);
+    console.log("field: ", field);
+    console.log("props: ", props);
   return (
     <FormControl isInvalid={!!error}>
-      <FormLabel htmlFor="name">{props.label}</FormLabel>
+      <FormLabel htmlFor="name">{label}</FormLabel>
       <Input
         {...field}
+        {...props}
         id={field.name}
-        placeholder={props.placeholder}
       />
       {error ? <FormErrorMessage>{error}</FormErrorMessage> : null}
     </FormControl>
