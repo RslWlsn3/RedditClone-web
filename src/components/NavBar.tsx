@@ -8,13 +8,19 @@ import {
 } from "../generated/graphql";
 import { userInfo } from "os";
 import { link } from "fs";
+import { isServer } from "../utils/isServer";
 
 interface NavBarProps {}
 
 export const NavBar: React.FC<NavBarProps> = ({}) => {
   const [{ fetching: logoutFetching }, logout] = useLogoutMutation();
-  const [{ data, fetching }] = useMeQuery();
+  const [{ data, fetching }] = useMeQuery({
+    pause: isServer(),
+  });
   let body;
+
+  console.log("isServer: ", isServer())
+  console.log("meQuery: ", data?.me)
 
   //loading
   if (fetching) {
@@ -33,6 +39,7 @@ export const NavBar: React.FC<NavBarProps> = ({}) => {
     );
     //user is logged in
   } else if (data.me.username) {
+    console.log("Hereeeeeeee: ", data.me)
     body = (
       <Flex>
         {" "}
