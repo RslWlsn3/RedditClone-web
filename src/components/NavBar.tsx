@@ -39,7 +39,6 @@ export const NavBar: React.FC<NavBarProps> = ({}) => {
     );
     //user is logged in
   } else if (data.me.username) {
-    console.log("Hereeeeeeee: ", data.me)
     body = (
       <Flex>
         {" "}
