@@ -44,6 +44,7 @@ const Login: React.FC<{}> = ({}) => {
               />
             </Box>
             <Button
+              mt={4}
               type="submit"
               colorScheme="teal"
               variant="solid"
