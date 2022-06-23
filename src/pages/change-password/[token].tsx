@@ -17,7 +17,7 @@ const ChangePassword: NextPage<{ token: string }> = ({ token }) => {
   const [, changePassword] = useChangePasswordMutation();
   const [tokenError, setTokenError] = useState("");
   return (
-    <Wrapper varient="small">
+    <Wrapper variant="small">
       <Formik
         initialValues={{ newPassword: "" }}
         onSubmit={async (values, { setErrors }) => {
