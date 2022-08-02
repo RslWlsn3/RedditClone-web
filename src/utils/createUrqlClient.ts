@@ -31,11 +31,10 @@ const cursorPagination = (): Resolver => {
     if (size === 0) {
       return undefined;
     }
-    // const fieldKey = `${fieldName}(${stringifyVariables(fieldArgs)})`;
-    // const isItInTheCache = cache.resolve(
-    //   cache.resolveFieldByKey(entityKey, fieldKey) as string,
-    //   "posts"
-    // );
+
+    const fieldKey = `${fieldName}(${stringifyVariables(fieldArgs)})`;
+    const isItInTheCache = cache.resolve(entityKey, fieldKey) as string[];
+    info.partial = !isItInTheCache;
     const results: string[] = [];
     fieldInfos.forEach((fi) => {
       const key = cache.resolve(entityKey, fi.fieldKey) as string[];
