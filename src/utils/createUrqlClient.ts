@@ -1,30 +1,41 @@
 import { cacheExchange, Resolver } from "@urql/exchange-graphcache";
-import { useRouter } from 'next/router'
-import { dedupExchange, Exchange, fetchExchange, stringifyVariables } from "urql";
+import { useRouter } from "next/router";
+import {
+  dedupExchange,
+  Exchange,
+  fetchExchange,
+  stringifyVariables,
+} from "urql";
 import { pipe, tap } from "wonka";
 import {
-  LoginMutation, LogoutMutation, MeDocument, MeQuery, RegisterMutation
+  LoginMutation,
+  LogoutMutation,
+  MeDocument,
+  MeQuery,
+  RegisterMutation,
 } from "../generated/graphql";
 import { betterUpdateQuery } from "./betterUpdateQuery";
 
 //Any time there is an error with anything we run it will come here
-const errorExchange: Exchange = ({ forward }) => (ops$) => {
-  const router = useRouter()
-  return pipe(
-    forward(ops$),
-    tap(({ error }) => {
-      if (error?.message.includes("not authenticated")) {
-        router.replace("/login");
-      }
-    })
-  );
-};
+const errorExchange: Exchange =
+  ({ forward }) =>
+  (ops$) => {
+    const router = useRouter();
+    return pipe(
+      forward(ops$),
+      tap(({ error }) => {
+        if (error?.message.includes("not authenticated")) {
+          router.replace("/login");
+        }
+      })
+    );
+  };
 
 const cursorPagination = (): Resolver => {
   return (_parent, fieldArgs, cache, info) => {
     const { parentKey: entityKey, fieldName } = info;
     const allFields = cache.inspectFields(entityKey);
-    console.log("allFields ", allFields)
+    console.log("allFields ", allFields);
 
     const fieldInfos = allFields.filter((info) => info.fieldName === fieldName);
     const size = fieldInfos.length;
@@ -33,21 +44,33 @@ const cursorPagination = (): Resolver => {
     }
 
     const fieldKey = `${fieldName}(${stringifyVariables(fieldArgs)})`;
-    const isItInTheCache = cache.resolve(entityKey, fieldKey) as string[];
+    const isItInTheCache = cache.resolve(
+      cache.resolve(entityKey, fieldKey) as string,
+      "posts"
+    );
     info.partial = !isItInTheCache;
+    let hasMore = true;
     const results: string[] = [];
     fieldInfos.forEach((fi) => {
-      const key = cache.resolve(entityKey, fi.fieldKey) as string[];
-      console.log("key ", key)
-      results.push(...key)
+      const key = cache.resolve(entityKey, fi.fieldKey) as string;
+      const data = cache.resolve(key, "posts") as string[];
+      const _hasMore = cache.resolve(key, "hasMore");
+      if (!_hasMore) {
+        hasMore = _hasMore as boolean;
+      }
+      console.log("data ", hasMore, data);
+      results.push(...data);
     });
 
-    console.log("results ", results)
-    return results;
+    console.log("results ", results);
 
+    return {
+      __typename: 'PaginatedPosts',
+      hasMore,
+      posts: results,
+    };
   };
 };
-
 
 export const createUrqlClient = (ssrExchange: any) => ({
   url: "http://localhost:4000/graphql",
@@ -57,10 +80,13 @@ export const createUrqlClient = (ssrExchange: any) => ({
   exchanges: [
     dedupExchange,
     cacheExchange({
+      keys: {
+        PaginatedPosts: () => null,
+      },
       resolvers: {
         Query: {
           posts: cursorPagination(),
-        }
+        },
       },
       updates: {
         Mutation: {
