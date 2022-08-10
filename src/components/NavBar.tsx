@@ -19,9 +19,6 @@ export const NavBar: React.FC<NavBarProps> = ({}) => {
   });
   let body;
 
-  console.log("isServer: ", isServer())
-  console.log("meQuery: ", data?.me)
-
   //loading
   if (fetching) {
     body = null;
