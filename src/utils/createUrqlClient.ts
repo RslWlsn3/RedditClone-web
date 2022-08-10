@@ -35,8 +35,6 @@ const cursorPagination = (): Resolver => {
   return (_parent, fieldArgs, cache, info) => {
     const { parentKey: entityKey, fieldName } = info;
     const allFields = cache.inspectFields(entityKey);
-    console.log("allFields ", allFields);
-
     const fieldInfos = allFields.filter((info) => info.fieldName === fieldName);
     const size = fieldInfos.length;
     if (size === 0) {
@@ -58,11 +56,8 @@ const cursorPagination = (): Resolver => {
       if (!_hasMore) {
         hasMore = _hasMore as boolean;
       }
-      console.log("data ", hasMore, data);
       results.push(...data);
     });
-
-    console.log("results ", results);
 
     return {
       __typename: 'PaginatedPosts',
@@ -90,6 +85,14 @@ export const createUrqlClient = (ssrExchange: any) => ({
       },
       updates: {
         Mutation: {
+          createPost: (_result, args, cache, info) => {
+            //reload this data from the server when createPost is performed
+            const allFields = cache.inspectFields('Query');
+            const fieldInfos = allFields.filter((info) => info.fieldName === 'posts');
+            fieldInfos.forEach((fi) => {
+              cache.invalidate('Query', 'posts', fi.arguments);
+            })
+          },
           logout: (_result: any, args, cache, info) => {
             betterUpdateQuery<LogoutMutation, MeQuery>(
               cache,
