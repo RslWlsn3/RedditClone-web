@@ -33,12 +33,7 @@ const Index = () => {
         ) : (
           data.posts.posts.map((p) => (
             <Flex key={p.id} p={5} shadow="md" borderWidth="1px">
-              {/* <Flex direction="column" justifyContent="center" alignItems="center" mr={4}>
-                <IconButton aria-label='Search database' icon={<ChevronUpIcon w={6} h={6}/>} />                
-                {p.points}
-                <IconButton aria-label='Search database' icon={<ChevronDownIcon w={6} h={6}/>} />                
-              </Flex> */}
-              <UpdootSection/>
+              <UpdootSection post={p}/>
               <Box>
                 <Heading fontSize="xl">{p.title}</Heading>
                 <Text>Posted by {p.creator.username}</Text> 
